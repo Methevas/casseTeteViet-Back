@@ -18,6 +18,9 @@ public interface SolutionService {
     @DeleteMapping("/solution/{id}")
     void deleteSolution(@PathVariable Long id);
 
+    @DeleteMapping("/solutions")
+    void deleteSolutions();
+
     @PostMapping("/solution")
     Solution saveSolution(@RequestBody Solution solution);
 }

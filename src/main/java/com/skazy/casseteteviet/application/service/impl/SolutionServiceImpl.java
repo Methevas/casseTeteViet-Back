@@ -28,6 +28,10 @@ public class SolutionServiceImpl implements SolutionService {
         solutionRepository.deleteById(id);
     }
 
+    public void deleteSolutions() {
+        solutionRepository.deleteAll();
+    }
+
     public Solution saveSolution(Solution solution){
         return solutionRepository.save(solution);
     }
