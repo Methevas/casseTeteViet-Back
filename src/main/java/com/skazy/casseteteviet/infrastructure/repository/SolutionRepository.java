@@ -11,5 +11,7 @@ public interface SolutionRepository extends CrudRepository<Solution, Long> {
 
     Solution findOneById(Long id);
 
+    boolean existsSolutionById(Long id);
+
     List<Solution> findAll();
 }
