@@ -12,6 +12,6 @@ public class Solution {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="numerotation")
-    private String numerotation;
+    @Column(name="valeurs")
+    private String valeurs;
 }
