@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Data
@@ -23,10 +24,17 @@ public class SolutionServiceImpl implements SolutionService {
 
     @Autowired
     private SolutionRepository solutionRepository;
+
     @Autowired
     SolutionMapper solutionMapper;
 
-    String MESSAGE_OK = "la sauvegarde à bien été prise en compte";
+    boolean solutionDejaGenere = false;
+
+    Calcul calcule = new Calcul();
+
+    String MESSAGE_OK = "la sauvegarde à bien été prise en compte, statut de la solution: ";
+
+    Gson gson = new Gson();
 
     /**
      * Recupère une solution possèdant l'id donné en entrée
@@ -48,7 +56,8 @@ public class SolutionServiceImpl implements SolutionService {
      * @return ListeSolutionsDto
      */
     public ListeSolutionsDto getSolutions() {
-        return new ListeSolutionsDto(solutionMapper.listeSolutionToListeSolutionDto(solutionRepository.findAll()));
+        List<Solution> solutions = solutionRepository.findAll();
+        return new ListeSolutionsDto(solutionMapper.listeSolutionToListeSolutionDto(solutions), calcule.getTempsDecalcul());
     }
 
     /**
@@ -65,6 +74,7 @@ public class SolutionServiceImpl implements SolutionService {
      */
     public void deleteSolutions() {
         solutionRepository.deleteAll();
+        solutionDejaGenere = false;
     }
 
     /**
@@ -75,11 +85,12 @@ public class SolutionServiceImpl implements SolutionService {
      * @throws Exception e
      */
     public ResponseEntity<String> saveSolution(SolutionDto solutionDto) throws Exception {
-        Gson gson = new Gson();
+        Solution solution;
         try {
-            Solution solution = solutionMapper.solutionDtoToSolution(solutionDto);
+            solution = solutionMapper.solutionDtoToSolution(solutionDto);
             verifierLaSolution(solution);
             estNouvelle(solution);
+            solution.setStatut(estCorrecte(solution));
             solutionRepository.save(solution);
 
         } catch (ValeurDupliqueeException valeurDupliqueeException) {
@@ -93,7 +104,23 @@ public class SolutionServiceImpl implements SolutionService {
         } catch (NombreAutoriseException nombreAutoriseException) {
             return ResponseEntity.badRequest().body(gson.toJson(nombreAutoriseException.getMessage()));
         }
-        return new ResponseEntity<>(gson.toJson(MESSAGE_OK), HttpStatus.OK);
+        return new ResponseEntity<>(gson.toJson(MESSAGE_OK+solution.statutToString()), HttpStatus.OK);
+    }
+
+    /**
+     * Permet de savoir si la solution est Correcte
+     * @param solution solution
+     * @return boolean
+     */
+    private boolean estCorrecte(Solution solution) {
+        String[] valeurs = solution.getValeurs().split(",");
+        int[] listeValeurs = new int[9];
+            int i = 0;
+            for(String c : valeurs){
+                listeValeurs[i] = Integer.parseInt(c);
+                i += 1;
+            }
+        return Calcul.caclulEgale66(listeValeurs);
     }
 
     /**
@@ -137,7 +164,33 @@ public class SolutionServiceImpl implements SolutionService {
                 throw new FormatSolutionException();
             }
         }
+    }
 
+    /**
+     * Calcul toutes les solutions possibles, les sauvegardes en base et renvoit le temps de calcul.
+     *
+     * @return ResponseEntity<String>
+     */
+    public ResponseEntity<String> caclulerSolution() {
+        solutionRepository.deleteAll();
+        List<Solution> listeSolutions = calcule.calculerSolutions();
+        solutionRepository.saveAll(listeSolutions);
+        solutionDejaGenere = true;
+        return new ResponseEntity<>(gson.toJson(calcule.getTempsDecalcul().toString()), HttpStatus.OK);
+    }
+
+    /**
+     * Méthode permettant de recuperer le temps de calcul de la derniere execution
+     *
+     * @return ResponseEntity<String>
+     */
+    public ResponseEntity<String> getTempsDecalcul() {
+        return new ResponseEntity<>(gson.toJson(calcule.getTempsDecalcul().toString()), HttpStatus.OK);
+    }
+
+    @Override
+    public boolean solutionDejaGener() {
+        return solutionDejaGenere;
     }
 }
 

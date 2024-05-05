@@ -6,4 +6,5 @@ import lombok.Data;
 public class SolutionDto {
     private Long id;
     private String valeurs;
+    private boolean statut;
 }

@@ -23,4 +23,13 @@ public interface SolutionService {
 
     @PutMapping("/solution")
     ResponseEntity<String> saveSolution(@RequestBody SolutionDto solutionDto) throws Exception;
+
+    @GetMapping("/solutions/calcul")
+    ResponseEntity<String> caclulerSolution() throws Exception;
+
+    @GetMapping("/solutions/tempsExecution")
+    ResponseEntity<String> getTempsDecalcul() throws Exception;
+
+    @GetMapping("/solutions/exist")
+    boolean solutionDejaGener();
 }

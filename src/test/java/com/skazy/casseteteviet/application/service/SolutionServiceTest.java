@@ -41,8 +41,7 @@ class SolutionServiceTest {
     String VALEURS_MAUVAIS_NB_VALEURS = "1,2,3,4,5,7,8,9";
     String VALEURS_PAS_AUTORISEE = "1,2,3,4,5,6,77,8,9";
     String VALEURS_DUPLIQUE = "1,2,3,7,5,6,7,8,9";
-
-    String MESSAGE_OK = "la sauvegarde à bien été prise en compte";
+    String MESSAGE_OK = "la sauvegarde à bien été prise en compte, statut de la solution: ";
 
     @Test
     void doitRenvoyerUneSolution() {
@@ -79,14 +78,14 @@ class SolutionServiceTest {
     void doitRenvoyerUneListeDeSolution_15() {
         List<Solution> solutions = remplissageListeSolution(15);
         List<SolutionDto> solutionsDto = remplissageListeSolutionDto(15);
-        ListeSolutionsDto listeSolutionsDtoTemoin = new ListeSolutionsDto(solutionsDto);
+        ListeSolutionsDto listeSolutionsDtoTemoin = new ListeSolutionsDto(solutionsDto,7L);
 
         when(solutionRepository.findAll()).thenReturn(solutions);
         when(solutionMapper.listeSolutionToListeSolutionDto(solutions)).thenReturn(solutionsDto);
 
         ListeSolutionsDto listeSolutionsDtoResult = solutionServiceImpl.getSolutions();
 
-        Assertions.assertEquals(listeSolutionsDtoResult, listeSolutionsDtoTemoin);
+        Assertions.assertEquals(listeSolutionsDtoResult.getSolutions(), listeSolutionsDtoTemoin.getSolutions());
         Mockito.verify(solutionRepository, Mockito.times(1)).findAll();
     }
 
@@ -101,7 +100,7 @@ class SolutionServiceTest {
         solutionDto.setValeurs(VALEURS_OK);
         solutionDto.setId(ID_SOLUTION);
 
-        ResponseEntity<String> responseEntityTemoin = new ResponseEntity<>(gson.toJson(MESSAGE_OK), HttpStatus.OK);
+        ResponseEntity<String> responseEntityTemoin = new ResponseEntity<>(gson.toJson(MESSAGE_OK+solution.statutToString()), HttpStatus.OK);
 
         when(solutionRepository.existsSolutionById(ID_SOLUTION)).thenReturn(true);
         when(solutionMapper.solutionDtoToSolution(solutionDto)).thenReturn(solution);

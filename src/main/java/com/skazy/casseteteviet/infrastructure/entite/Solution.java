@@ -14,4 +14,16 @@ public class Solution {
 
     @Column(name="valeurs")
     private String valeurs;
+
+    @Column(name="statut")
+    private boolean statut;
+
+    public String statutToString(){
+        if(this.statut){
+            return "Correcte";
+        }
+        else {
+            return "Incorrecte";
+        }
+    }
 }

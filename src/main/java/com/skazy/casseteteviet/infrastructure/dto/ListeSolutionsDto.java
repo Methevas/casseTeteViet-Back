@@ -7,9 +7,11 @@ import java.util.List;
 public class ListeSolutionsDto {
 
     private List<SolutionDto> solutions;
+    private Long tempsCalcul;
 
-    public ListeSolutionsDto(List<SolutionDto> solutionDtoList){
+    public ListeSolutionsDto(List<SolutionDto> solutionDtoList, Long tempsCalcul){
         this.solutions = solutionDtoList;
+        this.tempsCalcul = tempsCalcul;
     }
 
 }
